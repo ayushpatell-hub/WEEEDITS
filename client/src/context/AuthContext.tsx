@@ -7,16 +7,8 @@ import {
   useState,
   ReactNode,
 } from "react";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signOut,
-  User as FirebaseUser,
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { api } from "@/lib/api";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 export type AppUser = {
   id: string;
@@ -27,7 +19,7 @@ export type AppUser = {
 };
 
 type AuthContextType = {
-  firebaseUser: FirebaseUser | null;
+  firebaseUser: User | null;
   profile: AppUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -37,57 +29,63 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const toProfile = (user: User | null): AppUser | null => {
+  if (!user) return null;
+  return {
+    id: user.id,
+    firebase_uid: user.id,
+    email: user.email || "",
+    name: (user.user_metadata?.name as string) || "",
+    role: (user.app_metadata?.role as "client" | "admin") || "client",
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [profile, setProfile] = useState<AppUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      setFirebaseUser(user);
-
-      if (user) {
-        try {
-          const res = await api<{ user: AppUser }>("/auth/me", { auth: true });
-          setProfile(res.user);
-        } catch {
-          setProfile(null);
-        }
-      } else {
-        setProfile(null);
-      }
-
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null);
       setLoading(false);
     });
 
-    return () => unsub();
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   const signup = async (name: string, email: string, password: string) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-
-    const res = await api<{ user: AppUser }>("/auth/register", {
-      method: "POST",
-      body: { name, email },
-      auth: true,
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
     });
-
-    setProfile(res.user);
+    if (error) throw error;
   };
 
   const logout = async () => {
-    await signOut(auth);
-    setProfile(null);
+    await supabase.auth.signOut();
   };
 
   return (
     <AuthContext.Provider
-      value={{ firebaseUser, profile, loading, login, signup, logout }}
+      value={{
+        firebaseUser: user,
+        profile: toProfile(user),
+        loading,
+        login,
+        signup,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
