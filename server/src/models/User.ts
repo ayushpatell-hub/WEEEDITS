@@ -1,67 +1,69 @@
 import { getSupabase } from "../config/db";
 
 /*
-Run this SQL once in Supabase (SQL Editor):
+Run in Supabase SQL Editor.
 
+New table:
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
-  firebase_uid text unique not null,
+  auth_id text unique not null,
   email text unique not null,
-  name text not null default '',
-  role text not null default 'client' check (role in ('client', 'admin')),
-  created_at timestamptz not null default now()
+  name text,
+  role text not null default 'client' check (role in ('client','admin')),
+  created_at timestamptz default now()
 );
+
+If the users table already exists:
+alter table users rename column firebase_uid to auth_id;
 */
 
-export type UserRole = "client" | "admin";
-
-export interface User {
+export interface IUser {
   id: string;
-  firebase_uid: string;
+  auth_id: string;
   email: string;
-  name: string;
-  role: UserRole;
+  name: string | null;
+  role: "client" | "admin";
   created_at: string;
 }
 
-export const findUserByUid = async (uid: string): Promise<User | null> => {
+export const findUserByAuthId = async (authId: string): Promise<IUser | null> => {
   const { data, error } = await getSupabase()
     .from("users")
     .select("*")
-    .eq("firebase_uid", uid)
+    .eq("auth_id", authId)
     .maybeSingle();
 
   if (error) throw error;
-  return data as User | null;
+  return data as IUser | null;
 };
 
 export const createUser = async (input: {
-  firebase_uid: string;
+  auth_id: string;
   email: string;
   name?: string;
-  role?: UserRole;
-}): Promise<User> => {
+  role?: "client" | "admin";
+}): Promise<IUser> => {
   const { data, error } = await getSupabase()
     .from("users")
     .insert({
-      firebase_uid: input.firebase_uid,
+      auth_id: input.auth_id,
       email: input.email,
-      name: input.name || "",
+      name: input.name || null,
       role: input.role || "client",
     })
     .select()
     .single();
 
   if (error) throw error;
-  return data as User;
+  return data as IUser;
 };
 
-export const listUsers = async (): Promise<User[]> => {
+export const listUsers = async (): Promise<IUser[]> => {
   const { data, error } = await getSupabase()
     .from("users")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data || []) as User[];
+  return (data || []) as IUser[];
 };

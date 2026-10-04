@@ -1,48 +1,44 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
-import { createUser, findUserByUid } from "../models/User";
+import { createUser, findUserByAuthId } from "../models/User";
 
-export const registerUser = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
+export const registerUser = async (req: AuthRequest, res: Response) => {
   try {
-    const uid = req.firebaseUid!;
-    const email = req.firebaseEmail || req.body.email;
-    const name = req.body.name || "";
-
-    if (!email) {
-      res.status(400).json({ message: "Email is required" });
-      return;
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const existing = await findUserByUid(uid);
+    const existing = await findUserByAuthId(req.user.uid);
     if (existing) {
-      res.json({ user: existing });
-      return;
+      return res.status(200).json({ user: existing });
     }
 
     const user = await createUser({
-      firebase_uid: uid,
-      email,
-      name,
-      role: "client",
+      auth_id: req.user.uid,
+      email: req.user.email,
+      name: req.body?.name,
+      role: req.user.role === "admin" ? "admin" : "client",
     });
 
-    res.status(201).json({ user });
+    return res.status(201).json({ user });
   } catch (err: any) {
-    res.status(500).json({ message: err.message || "Register failed" });
+    return res.status(500).json({ message: err.message || "Register failed" });
   }
 };
 
-export const getMe = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  if (!req.user) {
-    res.status(404).json({ message: "User profile not found" });
-    return;
-  }
+export const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  res.json({ user: req.user });
+    const user = await findUserByAuthId(req.user.uid);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (err: any) {
+    return res.status(500).json({ message: err.message || "Failed to get user" });
+  }
 };
