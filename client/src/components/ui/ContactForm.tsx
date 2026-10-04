@@ -1,88 +1,92 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/lib/api";
 
 export default function ContactForm() {
-  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    service: "Video Editing",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSent(true);
-    e.currentTarget.reset();
+  const onChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  if (sent) {
-    return (
-      <div className="card py-16 text-center">
-        <div className="text-5xl">✅</div>
-        <h3 className="mt-4 font-display text-2xl font-semibold">
-          Message Sent
-        </h3>
-        <p className="mt-2 text-muted">
-          Thanks for contacting WEEEDITS. We will reply soon.
-        </p>
-        <button
-          onClick={() => setSent(false)}
-          className="btn-outline mt-6"
-        >
-          Send Another
-        </button>
-      </div>
-    );
-  }
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      await api.post("/contact", form);
+      setSuccess(true);
+      setForm({ name: "", email: "", service: "Video Editing", message: "" });
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputClass =
+    "w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-muted outline-none focus:border-accent";
 
   return (
-    <form onSubmit={handleSubmit} className="card space-y-5">
-      <div>
-        <label className="mb-2 block text-sm text-muted">Name</label>
-        <input
-          type="text"
-          name="name"
-          required
-          placeholder="Your name"
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-accent"
-        />
-      </div>
+    <form onSubmit={onSubmit} className="card space-y-4 p-6">
+      <input
+        name="name"
+        value={form.name}
+        onChange={onChange}
+        placeholder="Your name"
+        required
+        className={inputClass}
+      />
+      <input
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={onChange}
+        placeholder="Your email"
+        required
+        className={inputClass}
+      />
+      <select
+        name="service"
+        value={form.service}
+        onChange={onChange}
+        className={inputClass}
+      >
+        <option>Video Editing</option>
+        <option>Paid Promotion</option>
+        <option>Thumbnail Design</option>
+        <option>Other</option>
+      </select>
+      <textarea
+        name="message"
+        value={form.message}
+        onChange={onChange}
+        placeholder="Tell us about your project"
+        rows={5}
+        required
+        className={inputClass}
+      />
 
-      <div>
-        <label className="mb-2 block text-sm text-muted">Email</label>
-        <input
-          type="email"
-          name="email"
-          required
-          placeholder="you@example.com"
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-accent"
-        />
-      </div>
+      {error && <p className="text-sm text-accent">{error}</p>}
+      {success && (
+        <p className="text-sm text-foreground">Message sent. We will contact you soon.</p>
+      )}
 
-      <div>
-        <label className="mb-2 block text-sm text-muted">Service</label>
-        <select
-          name="service"
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-accent"
-        >
-          <option>Video Editing</option>
-          <option>Motion Graphics</option>
-          <option>Color and Sound</option>
-          <option>Paid Promotion</option>
-          <option>Thumbnails</option>
-          <option>Channel Strategy</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm text-muted">Message</label>
-        <textarea
-          name="message"
-          required
-          rows={5}
-          placeholder="Tell us about your project"
-          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-accent"
-        />
-      </div>
-
-      <button type="submit" className="btn-primary w-full">
-        Send Message
+      <button type="submit" disabled={loading} className="btn-primary w-full">
+        {loading ? "Sending..." : "Send Message"}
       </button>
     </form>
   );
