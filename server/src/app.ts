@@ -6,6 +6,8 @@ import morgan from "morgan";
 import authRoutes from "./routes/authRoutes";
 import contactRoutes from "./routes/contactRoutes";
 import userRoutes from "./routes/userRoutes";
+import requestRoutes from "./routes/requestRoutes";
+import messageRoutes from "./routes/messageRoutes";
 import { notFound, errorHandler } from "./middleware/error";
 
 const app = express();
@@ -30,6 +32,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/requests", requestRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
