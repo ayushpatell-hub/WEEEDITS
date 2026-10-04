@@ -1,35 +1,41 @@
 import { Request, Response, NextFunction } from "express";
-import { firebaseAuth } from "../config/firebase";
-import { findUserByUid, User } from "../models/User";
+import { getSupabase } from "../config/db";
 
 export interface AuthRequest extends Request {
-  firebaseUid?: string;
-  firebaseEmail?: string;
-  user?: User | null;
+  user?: {
+    uid: string;
+    email: string;
+    role: string;
+  };
 }
 
 export const verifyToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
-    const header = req.headers.authorization;
+    const header = req.headers.authorization || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
 
-    if (!header || !header.startsWith("Bearer ")) {
-      res.status(401).json({ message: "No token provided" });
-      return;
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
     }
 
-    const token = header.split(" ")[1];
-    const decoded = await firebaseAuth().verifyIdToken(token);
+    const { data, error } = await getSupabase().auth.getUser(token);
 
-    req.firebaseUid = decoded.uid;
-    req.firebaseEmail = decoded.email;
-    req.user = await findUserByUid(decoded.uid);
+    if (error || !data.user) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+
+    req.user = {
+      uid: data.user.id,
+      email: data.user.email || "",
+      role: (data.user.app_metadata?.role as string) || "client",
+    };
 
     next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 };
