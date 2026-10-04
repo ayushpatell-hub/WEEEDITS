@@ -46,11 +46,18 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: "Message is empty" });
     }
 
+    const requestId = req.params.requestId as string;
+
     const message = await createMessage({
-      request_id: req.params.requestId as string,
+      request_id: requestId,
       sender_id: (result as any).user.id,
       content,
     });
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(requestId).emit("new_message", message);
+    }
 
     return res.status(201).json({ message });
   } catch (err: any) {

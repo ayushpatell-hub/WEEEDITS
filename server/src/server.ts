@@ -2,7 +2,9 @@ import "dotenv/config";
 import http from "http";
 import { Server } from "socket.io";
 import app from "./app";
-import { connectDB } from "./config/db";
+import { connectDB, getSupabase } from "./config/db";
+import { findUserByAuthId } from "./models/User";
+import { findRequestById } from "./models/Request";
 
 const PORT = process.env.PORT || 5000;
 
@@ -18,12 +20,40 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  socket.on("join_room", (room: string) => {
-    socket.join(room);
-  });
+app.set("io", io);
 
-  socket.on("disconnect", () => {});
+io.on("connection", (socket) => {
+  socket.on(
+    "join_room",
+    async (payload: { requestId?: string; token?: string }) => {
+      try {
+        const { requestId, token } = payload || {};
+        if (!requestId || !token) {
+          return socket.emit("join_error", "Missing data");
+        }
+
+        const { data, error } = await getSupabase().auth.getUser(token);
+        if (error || !data.user) {
+          return socket.emit("join_error", "Invalid token");
+        }
+
+        const user = await findUserByAuthId(data.user.id);
+        const request = await findRequestById(requestId);
+        if (!user || !request) {
+          return socket.emit("join_error", "Not found");
+        }
+
+        if (user.role !== "admin" && request.user_id !== user.id) {
+          return socket.emit("join_error", "Not allowed");
+        }
+
+        socket.join(requestId);
+        socket.emit("joined", requestId);
+      } catch (err) {
+        socket.emit("join_error", "Failed to join");
+      }
+    }
+  );
 });
 
 export { io };
