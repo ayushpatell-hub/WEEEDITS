@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { getSupabase } from "../config/db";
+import { UserRole } from "../models/User";
 
 export interface AuthRequest extends Request {
   user?: {
     uid: string;
     email: string;
-    role: string;
+    role: UserRole;
   };
 }
 
@@ -28,10 +29,12 @@ export const verifyToken = async (
       return res.status(401).json({ message: "Invalid or expired token" });
     }
 
+    const metaRole = data.user.app_metadata?.role;
+
     req.user = {
       uid: data.user.id,
       email: data.user.email || "",
-      role: (data.user.app_metadata?.role as string) || "client",
+      role: metaRole === "admin" ? "admin" : "client",
     };
 
     next();

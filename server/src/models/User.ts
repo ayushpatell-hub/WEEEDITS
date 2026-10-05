@@ -17,12 +17,14 @@ If the users table already exists:
 alter table users rename column firebase_uid to auth_id;
 */
 
+export type UserRole = "client" | "admin";
+
 export interface IUser {
   id: string;
   auth_id: string;
   email: string;
   name: string | null;
-  role: "client" | "admin";
+  role: UserRole;
   created_at: string;
 }
 
@@ -41,7 +43,7 @@ export const createUser = async (input: {
   auth_id: string;
   email: string;
   name?: string;
-  role?: "client" | "admin";
+  role?: UserRole;
 }): Promise<IUser> => {
   const { data, error } = await getSupabase()
     .from("users")
