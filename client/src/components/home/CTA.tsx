@@ -16,8 +16,8 @@ export default function CTA() {
             <Link href="/contact" className="btn-primary">
               Get Started
             </Link>
-            <Link href="/pricing" className="btn-outline">
-              View Pricing
+            <Link href="/portfolio" className="btn-outline">
+              View Our Work
             </Link>
           </div>
         </div>

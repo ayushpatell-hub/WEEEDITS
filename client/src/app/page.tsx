@@ -4,7 +4,6 @@ import Showreel from "@/components/home/Showreel";
 import ServicesPreview from "@/components/home/ServicesPreview";
 import FeaturedPortfolio from "@/components/home/FeaturedPortfolio";
 import CreatorsPreview from "@/components/home/CreatorsPreview";
-import PricingPreview from "@/components/home/PricingPreview";
 import Testimonials from "@/components/home/Testimonials";
 import CTA from "@/components/home/CTA";
 
@@ -17,7 +16,6 @@ export default function Home() {
       <ServicesPreview />
       <FeaturedPortfolio />
       <CreatorsPreview />
-      <PricingPreview />
       <Testimonials />
       <CTA />
     </>
