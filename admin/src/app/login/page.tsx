@@ -250,3 +250,41 @@ export default function AdminLoginPage() {
                       height="20"
                       viewBox="0 0 24 24"
                       fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                      <circle cx="12" cy="12" r="3" />
+                      {!show && <path d="M4 4l16 16" />}
+                    </svg>
+                  </button>
+                </div>
+                {passErr && <p className="mt-1.5 text-xs text-accent">{passErr}</p>}
+              </div>
+
+              {error && (
+                <div className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={busy}
+                className="btn-primary !h-12 w-full disabled:opacity-60"
+              >
+                {busy ? "Signing in..." : "Login"}
+              </button>
+            </form>
+          )}
+
+          <p className="mt-6 text-center text-xs text-muted">
+            Authorized admins only
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
