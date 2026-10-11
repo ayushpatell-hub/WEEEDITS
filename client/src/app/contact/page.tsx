@@ -1,5 +1,6 @@
+import { Suspense } from "react";
 import PageHeader from "@/components/ui/PageHeader";
-import ContactForm from "@/components/ui/ContactForm";
+import InquiryForm from "@/components/ui/InquiryForm";
 
 const info = [
   { id: 1, emoji: "📧", label: "Email", value: "hello@weeedits.com" },
@@ -11,9 +12,9 @@ export default function ContactPage() {
   return (
     <>
       <PageHeader
-        label="Contact"
+        label="Start a Project"
         title="Let's Work Together"
-        description="Tell us about your project and we will get back to you."
+        description="Tell us about your project and we will get back to you with a plan and quote."
       />
 
       <section className="py-20">
@@ -34,7 +35,9 @@ export default function ContactPage() {
             </div>
 
             <div className="lg:col-span-2">
-              <ContactForm />
+              <Suspense fallback={<p className="text-muted">Loading form...</p>}>
+                <InquiryForm />
+              </Suspense>
             </div>
           </div>
         </div>
