@@ -1,6 +1,5 @@
 import Hero from "@/components/home/Hero";
 import FeaturedPortfolio from "@/components/home/FeaturedPortfolio";
-import Testimonials from "@/components/home/Testimonials";
 import CTA from "@/components/home/CTA";
 import {
   TrustStrip,
@@ -10,6 +9,12 @@ import {
   EditingSection,
   PromotionsSection,
 } from "@/components/home/HomeSections";
+import {
+  ProcessSection,
+  PackagesSection,
+  WhyChoose,
+  FAQSection,
+} from "@/components/home/InfoSections";
 
 export default function Home() {
   return (
@@ -22,7 +27,10 @@ export default function Home() {
       <EventsSection />
       <EditingSection />
       <PromotionsSection />
-      <Testimonials />
+      <ProcessSection />
+      <PackagesSection />
+      <WhyChoose />
+      <FAQSection />
       <CTA />
     </>
   );
