@@ -41,7 +41,11 @@ const empty: Form = {
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-muted outline-none focus:border-accent";
+  "w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2.5 text-foreground placeholder:text-muted/70 outline-none transition-colors focus:border-accent focus:ring-0";
+
+const labelClass = "block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted";
+
+const groupClass = "grid gap-5 border-l-2 border-accent pl-4 sm:grid-cols-2";
 
 export default function InquiryForm() {
   const params = useSearchParams();
@@ -92,9 +96,13 @@ export default function InquiryForm() {
 
   if (done) {
     return (
-      <div className="card p-10 text-center">
-        <div className="text-5xl">✅</div>
-        <h2 className="mt-4 font-display text-3xl font-bold">Request received</h2>
+      <div className="py-6">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-background">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12.5 10 17.5 19 7.5" />
+          </svg>
+        </div>
+        <h2 className="mt-5 font-display text-3xl font-semibold">Request received</h2>
         <p className="mt-3 text-muted">
           Thanks, {form.name.split(" ")[0]}. We will review your project and
           contact you at {form.email}.
@@ -118,7 +126,7 @@ export default function InquiryForm() {
     props: { type?: string; placeholder?: string; required?: boolean } = {}
   ) => (
     <div>
-      <label htmlFor={name} className="mb-1.5 block text-sm text-muted">
+      <label htmlFor={name} className={labelClass}>
         {label}
         {props.required && <span className="text-accent"> *</span>}
       </label>
@@ -136,17 +144,17 @@ export default function InquiryForm() {
   );
 
   return (
-    <form onSubmit={onSubmit} noValidate className="card space-y-5 p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={onSubmit} noValidate className="space-y-7">
+      <div className="grid gap-5 sm:grid-cols-2">
         {field("name", "Full name", { required: true })}
         {field("email", "Email address", { type: "email", required: true })}
         {field("phone", "Phone or WhatsApp (optional)")}
         {field("brand", "Business or brand name (optional)")}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="clientType" className="mb-1.5 block text-sm text-muted">
+          <label htmlFor="clientType" className={labelClass}>
             I am a
           </label>
           <select id="clientType" name="clientType" value={form.clientType} onChange={onChange} className={inputClass}>
@@ -156,7 +164,7 @@ export default function InquiryForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="service" className="mb-1.5 block text-sm text-muted">
+          <label htmlFor="service" className={labelClass}>
             Required service <span className="text-accent">*</span>
           </label>
           <select id="service" name="service" value={form.service} onChange={onChange} className={inputClass}>
@@ -174,14 +182,14 @@ export default function InquiryForm() {
 
       {field("title", "Project title or event name", { required: true })}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         {field("location", "Project location (if filming is needed)")}
         {field("deadline", "Preferred date or deadline", { type: "date" })}
       </div>
 
       {cat === "Event Videography" && (
-        <div className="grid gap-4 rounded-xl border border-border bg-surface-2 p-4 sm:grid-cols-2">
-          <p className="text-xs uppercase tracking-widest text-accent sm:col-span-2">Event details</p>
+        <div className={groupClass}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Event details</p>
           {field("eventDate", "Event date", { type: "date" })}
           {field("eventType", "Event type", { placeholder: "Fest, wedding, launch..." })}
           {field("duration", "Event duration", { placeholder: "e.g. 4 hours" })}
@@ -190,8 +198,8 @@ export default function InquiryForm() {
       )}
 
       {(cat === "Commercial Videos" || cat === "Social Media Content") && (
-        <div className="grid gap-4 rounded-xl border border-border bg-surface-2 p-4 sm:grid-cols-2">
-          <p className="text-xs uppercase tracking-widest text-accent sm:col-span-2">Production details</p>
+        <div className={groupClass}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Production details</p>
           {field("businessType", "Business type", { placeholder: "Cafe, gym, salon..." })}
           {field("videoCount", "Number of videos")}
           {field("platforms", "Intended platforms", { placeholder: "Instagram, YouTube..." })}
@@ -199,8 +207,8 @@ export default function InquiryForm() {
       )}
 
       {(cat === "Video Editing" || cat === "Creator Services") && (
-        <div className="grid gap-4 rounded-xl border border-border bg-surface-2 p-4 sm:grid-cols-2">
-          <p className="text-xs uppercase tracking-widest text-accent sm:col-span-2">Editing details</p>
+        <div className={groupClass}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Editing details</p>
           {field("duration", "Video duration", { placeholder: "e.g. 10 minutes" })}
           {field("sourceFootage", "Source footage available?", { placeholder: "Yes / No / Partly" })}
           {field("targetPlatform", "Target platform")}
@@ -209,8 +217,8 @@ export default function InquiryForm() {
       )}
 
       {cat === "Paid Promotions" && (
-        <div className="grid gap-4 rounded-xl border border-border bg-surface-2 p-4 sm:grid-cols-2">
-          <p className="text-xs uppercase tracking-widest text-accent sm:col-span-2">Campaign details</p>
+        <div className={groupClass}>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Campaign details</p>
           {field("audience", "Target audience")}
           {field("objective", "Campaign objective", { placeholder: "Awareness, leads..." })}
           {field("adPlatform", "Advertising platform", { placeholder: "Instagram, YouTube..." })}
@@ -224,17 +232,17 @@ export default function InquiryForm() {
       {field("budget", "Estimated budget", { placeholder: "e.g. Rs 15,000 or flexible" })}
 
       <div>
-        <label htmlFor="description" className="mb-1.5 block text-sm text-muted">
+        <label htmlFor="description" className={labelClass}>
           Project description <span className="text-accent">*</span>
         </label>
         <textarea
           id="description"
           name="description"
-          rows={5}
+          rows={4}
           value={form.description}
           onChange={onChange}
           placeholder="Tell us about your project"
-          className={inputClass}
+          className={`${inputClass} resize-none`}
         />
         {errors.description && <p className="mt-1 text-xs text-accent">{errors.description}</p>}
       </div>
@@ -247,9 +255,15 @@ export default function InquiryForm() {
         </div>
       )}
 
-      <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
-        {loading ? "Sending..." : "Send Project Request"}
-      </button>
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-lg bg-foreground px-7 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-60"
+        >
+          {loading ? "Sending..." : "Send Project Request"}
+        </button>
+      </div>
     </form>
   );
 }
