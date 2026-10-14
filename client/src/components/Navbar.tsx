@@ -31,17 +31,25 @@ export default function Navbar() {
       <div className="container-x flex h-16 items-center justify-between">
         <Link
           href="/"
+          aria-label="WEE EDITS home"
           className={`font-display flex items-center gap-2.5 text-2xl font-extrabold tracking-tight ${
             light ? "text-[#16231b]" : "text-foreground"
           }`}
         >
-          <span
-            className={`h-2.5 w-2.5 rounded-full ${
-              light ? "bg-[#2f5d43] shadow-[0_0_0_4px_rgba(47,93,67,.16)]" : "bg-accent"
-            }`}
-          />
-          WEEE
-          <span className={light ? "text-[#2f5d43]" : "text-accent"}>DITS</span>
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 34 34"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect width="34" height="34" rx="9" fill="#2f5d43" />
+            <path d="M13 10.5 L25 17 L13 23.5 Z" fill="#eef1e6" />
+            <rect x="8" y="26" width="18" height="2.5" rx="1.25" fill="#eef1e6" opacity="0.55" />
+          </svg>
+          <span>
+            WEE <span className={light ? "text-[#2f5d43]" : "text-accent"}>EDITS</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -67,7 +75,7 @@ export default function Navbar() {
             className={`text-2xl md:hidden ${light ? "text-[#16231b]" : "text-foreground"}`}
             aria-label="Toggle menu"
           >
-            {open ? "✕" : "☰"}
+            {open ? "\u2715" : "\u2630"}
           </button>
         </div>
       </div>
