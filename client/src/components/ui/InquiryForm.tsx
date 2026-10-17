@@ -41,11 +41,26 @@ const empty: Form = {
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const inputClass =
-  "w-full border-0 border-b border-foreground/30 bg-transparent px-0 py-2.5 text-foreground placeholder:text-muted/70 outline-none transition-colors focus:border-accent focus:ring-0";
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted/70 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/15";
 
-const labelClass = "block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted";
+const labelClass = "mb-1.5 block text-sm font-medium text-foreground";
 
-const groupClass = "grid gap-5 border-l-2 border-accent pl-4 sm:grid-cols-2";
+const groupClass =
+  "grid gap-5 rounded-2xl border border-border bg-surface-2/50 p-5 sm:grid-cols-2";
+
+const groupTitle = "text-sm font-semibold text-accent sm:col-span-2";
+
+function Section({ n, title }: { n: number; title: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white">
+        {n}
+      </span>
+      <p className="font-display text-base font-semibold">{title}</p>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  );
+}
 
 export default function InquiryForm() {
   const params = useSearchParams();
@@ -97,7 +112,7 @@ export default function InquiryForm() {
   if (done) {
     return (
       <div className="py-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-background">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M5 12.5 10 17.5 19 7.5" />
           </svg>
@@ -123,12 +138,13 @@ export default function InquiryForm() {
   const field = (
     name: string,
     label: string,
-    props: { type?: string; placeholder?: string; required?: boolean } = {}
+    props: { type?: string; placeholder?: string; required?: boolean; optional?: boolean } = {}
   ) => (
     <div>
       <label htmlFor={name} className={labelClass}>
         {label}
         {props.required && <span className="text-accent"> *</span>}
+        {props.optional && <span className="font-normal text-muted"> (optional)</span>}
       </label>
       <input
         id={name}
@@ -144,110 +160,119 @@ export default function InquiryForm() {
   );
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-7">
-      <div className="grid gap-5 sm:grid-cols-2">
-        {field("name", "Full name", { required: true })}
-        {field("email", "Email address", { type: "email", required: true })}
-        {field("phone", "Phone or WhatsApp (optional)")}
-        {field("brand", "Business or brand name (optional)")}
+    <form onSubmit={onSubmit} noValidate className="space-y-8">
+      <div className="space-y-5">
+        <Section n={1} title="About you" />
+        <div className="grid gap-5 sm:grid-cols-2">
+          {field("name", "Full name", { required: true, placeholder: "Your name" })}
+          {field("email", "Email address", { type: "email", required: true, placeholder: "you@example.com" })}
+          {field("phone", "Phone or WhatsApp", { optional: true })}
+          {field("brand", "Business or brand", { optional: true })}
+          <div className="sm:col-span-2">
+            <label htmlFor="clientType" className={labelClass}>
+              I am a
+            </label>
+            <select id="clientType" name="clientType" value={form.clientType} onChange={onChange} className={inputClass}>
+              {clientTypes.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="space-y-5">
+        <Section n={2} title="Your project" />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="service" className={labelClass}>
+              Required service <span className="text-accent">*</span>
+            </label>
+            <select id="service" name="service" value={form.service} onChange={onChange} className={inputClass}>
+              <option value="">Select a service</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.name}>
+                  {s.name}
+                </option>
+              ))}
+              {preset && !selected && <option value={preset}>{preset}</option>}
+            </select>
+            {errors.service && <p className="mt-1 text-xs text-accent">{errors.service}</p>}
+          </div>
+          <div className="sm:col-span-2">
+            {field("title", "Project title or event name", { required: true, placeholder: "e.g. Cafe launch reel" })}
+          </div>
+          {field("location", "Project location", { optional: true, placeholder: "If filming is needed" })}
+          {field("deadline", "Preferred deadline", { type: "date", optional: true })}
+        </div>
+
+        {cat === "Event Videography" && (
+          <div className={groupClass}>
+            <p className={groupTitle}>Event details</p>
+            {field("eventDate", "Event date", { type: "date" })}
+            {field("eventType", "Event type", { placeholder: "Fest, wedding, launch..." })}
+            {field("duration", "Event duration", { placeholder: "e.g. 4 hours" })}
+            {field("coverage", "Expected coverage", { placeholder: "Highlight film, reels..." })}
+          </div>
+        )}
+
+        {(cat === "Commercial Videos" || cat === "Social Media Content") && (
+          <div className={groupClass}>
+            <p className={groupTitle}>Production details</p>
+            {field("businessType", "Business type", { placeholder: "Cafe, gym, salon..." })}
+            {field("videoCount", "Number of videos")}
+            <div className="sm:col-span-2">
+              {field("platforms", "Intended platforms", { placeholder: "Instagram, YouTube..." })}
+            </div>
+          </div>
+        )}
+
+        {(cat === "Video Editing" || cat === "Creator Services") && (
+          <div className={groupClass}>
+            <p className={groupTitle}>Editing details</p>
+            {field("duration", "Video duration", { placeholder: "e.g. 10 minutes" })}
+            {field("sourceFootage", "Source footage available?", { placeholder: "Yes / No / Partly" })}
+            {field("targetPlatform", "Target platform")}
+            {field("style", "Editing style", { placeholder: "Cinematic, fast, clean..." })}
+          </div>
+        )}
+
+        {cat === "Paid Promotions" && (
+          <div className={groupClass}>
+            <p className={groupTitle}>Campaign details</p>
+            {field("audience", "Target audience")}
+            {field("objective", "Campaign objective", { placeholder: "Awareness, leads..." })}
+            {field("adPlatform", "Advertising platform", { placeholder: "Instagram, YouTube..." })}
+            {field("adSpend", "Approximate ad spend")}
+            <p className="text-xs text-muted sm:col-span-2">
+              Ad spend is paid by you. Our fee is separate. Results are never guaranteed.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-5">
+        <Section n={3} title="Brief and budget" />
         <div>
-          <label htmlFor="clientType" className={labelClass}>
-            I am a
+          <label htmlFor="description" className={labelClass}>
+            Project description <span className="text-accent">*</span>
           </label>
-          <select id="clientType" name="clientType" value={form.clientType} onChange={onChange} className={inputClass}>
-            {clientTypes.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
+          <textarea
+            id="description"
+            name="description"
+            rows={5}
+            value={form.description}
+            onChange={onChange}
+            placeholder="Tell us about your project"
+            className={`${inputClass} resize-none`}
+          />
+          {errors.description && <p className="mt-1 text-xs text-accent">{errors.description}</p>}
         </div>
-        <div>
-          <label htmlFor="service" className={labelClass}>
-            Required service <span className="text-accent">*</span>
-          </label>
-          <select id="service" name="service" value={form.service} onChange={onChange} className={inputClass}>
-            <option value="">Select a service</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
-              </option>
-            ))}
-            {preset && !selected && <option value={preset}>{preset}</option>}
-          </select>
-          {errors.service && <p className="mt-1 text-xs text-accent">{errors.service}</p>}
+        <div className="grid gap-5 sm:grid-cols-2">
+          {field("budget", "Estimated budget", { optional: true, placeholder: "e.g. Rs 15,000 or flexible" })}
+          {field("links", "Reference links", { optional: true, placeholder: "Videos you like" })}
         </div>
       </div>
-
-      {field("title", "Project title or event name", { required: true })}
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        {field("location", "Project location (if filming is needed)")}
-        {field("deadline", "Preferred date or deadline", { type: "date" })}
-      </div>
-
-      {cat === "Event Videography" && (
-        <div className={groupClass}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Event details</p>
-          {field("eventDate", "Event date", { type: "date" })}
-          {field("eventType", "Event type", { placeholder: "Fest, wedding, launch..." })}
-          {field("duration", "Event duration", { placeholder: "e.g. 4 hours" })}
-          {field("coverage", "Expected coverage", { placeholder: "Highlight film, reels..." })}
-        </div>
-      )}
-
-      {(cat === "Commercial Videos" || cat === "Social Media Content") && (
-        <div className={groupClass}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Production details</p>
-          {field("businessType", "Business type", { placeholder: "Cafe, gym, salon..." })}
-          {field("videoCount", "Number of videos")}
-          {field("platforms", "Intended platforms", { placeholder: "Instagram, YouTube..." })}
-        </div>
-      )}
-
-      {(cat === "Video Editing" || cat === "Creator Services") && (
-        <div className={groupClass}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Editing details</p>
-          {field("duration", "Video duration", { placeholder: "e.g. 10 minutes" })}
-          {field("sourceFootage", "Source footage available?", { placeholder: "Yes / No / Partly" })}
-          {field("targetPlatform", "Target platform")}
-          {field("style", "Editing style", { placeholder: "Cinematic, fast, clean..." })}
-        </div>
-      )}
-
-      {cat === "Paid Promotions" && (
-        <div className={groupClass}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:col-span-2">Campaign details</p>
-          {field("audience", "Target audience")}
-          {field("objective", "Campaign objective", { placeholder: "Awareness, leads..." })}
-          {field("adPlatform", "Advertising platform", { placeholder: "Instagram, YouTube..." })}
-          {field("adSpend", "Approximate ad spend")}
-          <p className="text-xs text-muted sm:col-span-2">
-            Ad spend is paid by you. Our fee is separate. Results are never guaranteed.
-          </p>
-        </div>
-      )}
-
-      {field("budget", "Estimated budget", { placeholder: "e.g. Rs 15,000 or flexible" })}
-
-      <div>
-        <label htmlFor="description" className={labelClass}>
-          Project description <span className="text-accent">*</span>
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          rows={4}
-          value={form.description}
-          onChange={onChange}
-          placeholder="Tell us about your project"
-          className={`${inputClass} resize-none`}
-        />
-        {errors.description && <p className="mt-1 text-xs text-accent">{errors.description}</p>}
-      </div>
-
-      {field("links", "Reference links (optional)", { placeholder: "Paste links to videos you like" })}
 
       {error && (
         <div role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-accent">
@@ -255,15 +280,13 @@ export default function InquiryForm() {
         </div>
       )}
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-foreground px-7 py-3 text-sm font-medium text-background transition-colors hover:bg-accent disabled:opacity-60"
-        >
-          {loading ? "Sending..." : "Send Project Request"}
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn-primary w-full disabled:opacity-60"
+      >
+        {loading ? "Sending..." : "Send Project Request"}
+      </button>
     </form>
   );
 }
