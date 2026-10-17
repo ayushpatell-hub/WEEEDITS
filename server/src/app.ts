@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes";
 import requestRoutes from "./routes/requestRoutes";
 import messageRoutes from "./routes/messageRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import inquiryRoutes from "./routes/inquiryRoutes";
 import { apiLimiter, authLimiter, contactLimiter } from "./middleware/security";
 import { notFound, errorHandler } from "./middleware/error";
 
@@ -34,9 +35,11 @@ app.get("/api/health", (_req, res) => {
 app.use("/api", apiLimiter);
 app.use("/api/auth", authLimiter);
 app.use("/api/contact", contactLimiter);
+app.use("/api/inquiries", contactLimiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/messages", messageRoutes);
