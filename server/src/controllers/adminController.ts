@@ -9,11 +9,13 @@ export const getStats = async (
   try {
     const supabase = getSupabase();
 
-    const [requestsRes, clientsRes, contactsRes] = await Promise.all([
-      supabase.from("requests").select("id, service, status, created_at"),
-      supabase.from("users").select("id", { count: "exact", head: true }).eq("role", "client"),
-      supabase.from("contacts").select("id", { count: "exact", head: true }),
-    ]);
+    const [requestsRes, clientsRes, contactsRes, inquiriesRes] =
+      await Promise.all([
+        supabase.from("requests").select("id, service, status, created_at"),
+        supabase.from("users").select("id", { count: "exact", head: true }).eq("role", "client"),
+        supabase.from("contacts").select("id", { count: "exact", head: true }),
+        supabase.from("inquiries").select("id", { count: "exact", head: true }),
+      ]);
 
     if (requestsRes.error) throw requestsRes.error;
 
@@ -44,6 +46,7 @@ export const getStats = async (
       totalRequests: requests.length,
       totalClients: clientsRes.count || 0,
       totalContacts: contactsRes.count || 0,
+      totalInquiries: inquiriesRes.count || 0,
       byStatus,
       byService,
       perMonth,
@@ -80,6 +83,24 @@ export const getContacts = async (
   try {
     const { data, error } = await getSupabase()
       .from("contacts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getInquiries = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { data, error } = await getSupabase()
+      .from("inquiries")
       .select("*")
       .order("created_at", { ascending: false });
 

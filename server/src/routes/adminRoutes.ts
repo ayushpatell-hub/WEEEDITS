@@ -4,6 +4,7 @@ import {
   getStats,
   getClients,
   getContacts,
+  getInquiries,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -23,5 +24,6 @@ router.use(verifyToken, adminOnly);
 router.get("/stats", getStats);
 router.get("/clients", getClients);
 router.get("/contacts", getContacts);
+router.get("/inquiries", getInquiries);
 
 export default router;
