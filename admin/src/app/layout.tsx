@@ -8,9 +8,9 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const space = Space_Grotesk({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-space",
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${space.variable}`}>
-      <body>
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <body className="bg-background text-foreground antialiased">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
