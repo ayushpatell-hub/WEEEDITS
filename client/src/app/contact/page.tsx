@@ -2,10 +2,11 @@ import { Suspense } from "react";
 import InquiryForm from "@/components/ui/InquiryForm";
 
 const info = [
-  { id: 1, label: "Email", value: "hello@weeedits.com", href: "mailto:hello@weeedits.com" },
-  { id: 2, label: "Phone", value: "+91 00000 00000", href: "" },
-  { id: 3, label: "Location", value: "India", href: "" },
-  { id: 4, label: "Response time", value: "Replies within 24 hours", href: "" },
+  { id: 1, label: "Contact", value: "Parikshit Dahiya", href: "" },
+  { id: 2, label: "Email", value: "dahiyaparikshit76@gmail.com", href: "mailto:dahiyaparikshit76@gmail.com" },
+  { id: 3, label: "Phone", value: "+91 76684 12033", href: "tel:+917668412033" },
+  { id: 4, label: "Location", value: "Dehradun, India", href: "" },
+  { id: 5, label: "Response time", value: "Replies within 24 hours", href: "" },
 ];
 
 const steps = [
@@ -29,6 +30,7 @@ const socials = [
     id: 3,
     name: "WhatsApp",
     path: "M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .2-3.3-.7-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.3.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.6.3.1.2.1.8-.1 1.4Z",
+    href: "https://wa.me/917668412033",
   },
 ];
 
@@ -64,12 +66,12 @@ export default function ContactPage() {
                   {i.href ? (
                     <a
                       href={i.href}
-                      className="text-sm font-medium transition-colors hover:text-accent"
+                      className="break-all text-right text-sm font-medium transition-colors hover:text-accent"
                     >
                       {i.value}
                     </a>
                   ) : (
-                    <p className="text-sm font-medium">{i.value}</p>
+                    <p className="text-right text-sm font-medium">{i.value}</p>
                   )}
                 </div>
               ))}
@@ -99,7 +101,9 @@ export default function ContactPage() {
               {socials.map((s) => (
                 <a
                   key={s.id}
-                  href="#"
+                  href={s.href || "#"}
+                  target={s.href ? "_blank" : undefined}
+                  rel={s.href ? "noopener noreferrer" : undefined}
                   aria-label={s.name}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-accent hover:bg-accent hover:text-white"
                 >
