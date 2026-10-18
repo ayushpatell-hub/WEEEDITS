@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const links = [
   { href: "/", label: "Overview", emoji: "📊" },
+  { href: "/inquiries", label: "Inquiries", emoji: "📩" },
   { href: "/requests", label: "Requests", emoji: "📥" },
   { href: "/clients", label: "Clients", emoji: "👥" },
   { href: "/contacts", label: "Contacts", emoji: "✉️" },
