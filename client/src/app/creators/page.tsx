@@ -133,54 +133,26 @@ export default function CreatorsPage() {
       {creators.map((c, i) => {
         const [first, ...rest] = c.name.split(" ");
         const last = rest.join(" ");
-        const flip = i % 2 === 1;
         return (
           <section
             key={c.name}
             id={`creator-${i + 1}`}
-            className="scroll-mt-20 border-t border-foreground/40 px-4 py-14 sm:px-8"
+            className="scroll-mt-20 border-t border-foreground/40 px-4 py-10 sm:px-8"
           >
-            <div className="grid gap-10 md:grid-cols-2">
+            <div className="grid border border-foreground/40 md:grid-cols-[2fr_3fr]">
               <div
-                className={`flex min-w-0 flex-col justify-between gap-12 md:min-h-[520px] ${
-                  flip ? "md:order-2" : ""
-                }`}
-              >
-                <div>
-                  <p className="text-xs text-muted">{String(i + 1).padStart(2, "0")}</p>
-                  <h2
-                    className="mt-4 break-words font-normal uppercase leading-[0.9] tracking-[-0.02em] text-accent"
-                    style={{ ...serif, fontSize: "clamp(2.6rem, 6vw, 5.5rem)" }}
-                  >
-                    {first}
-                    {last && (
-                      <>
-                        <br />
-                        {last}
-                      </>
-                    )}
-                  </h2>
-                </div>
-                <p className="text-lg uppercase leading-snug tracking-wide">
-                  {c.role}
-                </p>
-              </div>
-
-              <div
-                className={`flex items-center justify-center p-6 sm:p-10 ${
-                  flip ? "md:order-1" : ""
-                }`}
+                className="flex items-center justify-center p-6 sm:p-8"
                 style={{ background: c.tone }}
               >
                 <div
                   role="img"
                   aria-label={c.name}
-                  className="flex aspect-[108/200] w-full max-w-[340px] items-center justify-center"
+                  className="flex aspect-[108/200] w-full max-w-[200px] items-center justify-center"
                   style={{ ...maskStyle, ...photoStyle(c) }}
                 >
                   {!c.image && (
                     <span
-                      className="text-8xl text-accent"
+                      className="text-7xl text-accent"
                       style={serif}
                       aria-hidden="true"
                     >
@@ -189,36 +161,47 @@ export default function CreatorsPage() {
                   )}
                 </div>
               </div>
-            </div>
 
-            <div className="mt-14 grid gap-4 border-t border-foreground/40 pt-8 md:grid-cols-[180px_1fr]">
-              <p className={label}>About {first}</p>
-              <p
-                className="max-w-4xl text-2xl leading-[1.2] text-accent sm:text-4xl"
-                style={serif}
-              >
-                {c.bio}
-              </p>
-            </div>
+              <div className="flex min-w-0 flex-col justify-between gap-8 bg-surface-2 p-6 sm:p-10">
+                <div>
+                  <p className="text-xs text-muted">{String(i + 1).padStart(2, "0")}</p>
+                  <h2
+                    className="mt-3 break-words font-normal uppercase leading-[0.95] tracking-[-0.02em] text-accent"
+                    style={{ ...serif, fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
+                  >
+                    {first} {last}
+                  </h2>
+                  <p className="mt-3 text-sm uppercase tracking-[0.14em]">{c.role}</p>
+                </div>
 
-            <div className="mt-12 grid gap-6 border-t border-foreground/40 pt-8 md:grid-cols-[180px_1fr_auto]">
-              <p className={label}>Skills</p>
-              <div>
-                <p className="max-w-lg text-lg leading-snug">
-                  {c.experience} experience &middot; {c.projects} projects
+                <p
+                  className="max-w-xl text-xl leading-[1.25] text-accent"
+                  style={serif}
+                >
+                  {c.bio}
                 </p>
-                <ul className="mt-6 max-w-lg border-t border-foreground/40">
-                  {c.skills.map((s) => (
-                    <li key={s} className="border-b border-foreground/40 py-4">
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <Link href="/contact" className={pill}>
-                  Work with {first}
-                </Link>
+
+                <div>
+                  <p className="text-sm text-muted">
+                    {c.experience} experience &middot; {c.projects} projects
+                  </p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {c.skills.map((s) => (
+                      <li
+                        key={s}
+                        className="rounded-full border border-foreground/40 px-4 py-1.5 text-xs uppercase tracking-[0.12em]"
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <Link href="/contact" className={pill}>
+                    Work with {first}
+                  </Link>
+                </div>
               </div>
             </div>
           </section>
